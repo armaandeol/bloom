@@ -1,19 +1,3 @@
-# Welcome to your Lovable project
-
-## Project info
-
-**URL**: https://lovable.dev/projects/3614e377-a5b7-48a6-a0d4-893e8bcdd981
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/3614e377-a5b7-48a6-a0d4-893e8bcdd981) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
 If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
@@ -36,38 +20,62 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+# 🌸 Bloom - A Personalized Learning Platform for Individuals with ASD
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+*Bloom* is an intelligent, empathetic learning platform designed to empower individuals with Autism Spectrum Disorder (ASD) by delivering personalized career guidance, adaptive learning paths, and insightful progress tracking—crafted with care using cutting-edge AI.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🚀 Features
 
-## What technologies are used for this project?
+### 🎯 Personalized Career Path Recommendations
+- Users begin by filling out a form detailing their interests.
+- An AI agent processes these inputs and recommends a suitable career path aligned with the user’s passions and strengths.
 
-This project is built with:
+### 🎮 Adaptive Learning Modes
+- *Gamified Learning*: Interactive games for immersive experiences.
+- *Storytelling*: Engaging narratives to simplify concepts.
+- *Music-Based Learning*: Leveraging melodies to enhance memory and attention.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 🧠 Intelligent Quiz Agent
+- After learning sessions, users take a quiz.
+- Based on performance:
+  - If performance is low, the AI agent recommends a more suitable learning method.
+  - If performance is good, the current method is retained.
+- *Emotion Detection*: An emotion recognition model analyzes the user's mood during the quiz to provide more empathetic feedback.
 
-## How can I deploy this project?
+### 👨‍👩‍👧 Parent Insight Dashboard
+- A *Performance Summarizer Agent* provides:
+  - Child’s learning analytics.
+  - Emotional trends and focus levels.
+  - Suggestions for support and motivation.
 
-Simply open [Lovable](https://lovable.dev/projects/3614e377-a5b7-48a6-a0d4-893e8bcdd981) and click on Share -> Publish.
+### 📅 Daily Routine & Roadmap Planner
+- A smart agent builds a personalized learning roadmap.
+- Daily routine schedules are crafted based on progress, goals, and the user's mood and performance patterns.
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes it is!
+## 🧰 Tech Stack
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- *Frontend*: TypeScript + Tailwind CSS
+- *Framework*: React
+- *Backend/Database*: Firebase, FastAPI
+- *AI & LLMs*: Groq LLM
+- *Emotion Detection*: DeepFace model for Emotion Detection
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+
+## 💡 Vision
+
+Our mission with *Bloom* is to make education inclusive, empowering, and truly tailored—especially for learners with ASD. With empathy-driven AI and dynamic learning experiences, we aim to nurture individual potential and celebrate unique learning journeys.
+
+---
+
+##  🌼 Why the Name "Bloom"
+
+Every child is a seed full of potential. With the right tools, environment, and care, they don’t just grow — they bloom. Our platform aims to be the nurturing soil that helps them thrive 🌷
+
+
+
+## 🌱 Let's help every learner bloom.
