@@ -1,4 +1,3 @@
-// src/pages/DoctorPortal.tsx
 import React, { useState } from 'react';
 import BodyVisualization from '../components/games/BodyVisualization';
 import ProgressTracker from '../components/games/ProgressTracker';
