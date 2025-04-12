@@ -1,3 +1,9 @@
+# 🌸 Bloom - A Personalized Learning Platform for Individuals with ASD
+
+*Bloom* is an intelligent, empathetic learning platform designed to empower individuals with Autism Spectrum Disorder (ASD) by delivering personalized career guidance, adaptive learning paths, and insightful progress tracking—crafted with care using cutting-edge AI.
+
+---
+
 **Use your preferred IDE**
 
 If you want to work locally using your own IDE, you can clone this repo.
@@ -8,23 +14,17 @@ Follow these steps:
 
 ```sh
 # Step 1: Clone the repository using the project's Git URL.
-git clone 
+git clone https://github.com/armaandeol/bloom.git
 
 # Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+cd bloom
 
 # Step 3: Install the necessary dependencies.
-npm i
+npm install
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
-
-# 🌸 Bloom - A Personalized Learning Platform for Individuals with ASD
-
-*Bloom* is an intelligent, empathetic learning platform designed to empower individuals with Autism Spectrum Disorder (ASD) by delivering personalized career guidance, adaptive learning paths, and insightful progress tracking—crafted with care using cutting-edge AI.
-
----
 
 ## 🚀 Features
 
