@@ -6,13 +6,23 @@ import LearningContent from '../components/games/LearningContent';
 import TeachingStrategies from '../components/games/TeachingStrategies';
 import HeroSection from '../components/doctor/HeroSection';
 
-const bodyParts = [
-  { id: 'brain', name: 'Brain', description: 'The brain helps you think, feel, and control your body.', learned: 0 },
-  { id: 'heart', name: 'Heart', description: 'The heart pumps blood all around your body.', learned: 0 },
-  { id: 'lungs', name: 'Lungs', description: 'The lungs help you breathe in oxygen and breathe out carbon dioxide.', learned: 0 },
-  { id: 'stomach', name: 'Stomach', description: 'The stomach helps digest the food you eat.', learned: 0 },
-  { id: 'bones', name: 'Bones', description: 'Bones protect your body and help you move around.', learned: 0 },
-  { id: 'muscles', name: 'Muscles', description: 'Muscles help you move and stay strong.', learned: 0 },
+// Import or define the BodyPart interface to match BodyVisualization component
+interface BodyPart {
+  id: string;
+  name: string;
+  description: string;
+  learned: number;
+  funFact: string;
+  sound?: string;
+}
+
+const bodyParts: BodyPart[] = [
+  { id: 'brain', name: 'Brain', description: 'The brain helps you think, feel, and control your body.', learned: 0, funFact: 'Your brain is wrinkly to fit more thinking power in your head!' },
+  { id: 'heart', name: 'Heart', description: 'The heart pumps blood all around your body.', learned: 0, funFact: 'Your heart is about the size of your fist and beats over 100,000 times every day!' },
+  { id: 'lungs', name: 'Lungs', description: 'The lungs help you breathe in oxygen and breathe out carbon dioxide.', learned: 0, funFact: 'If you stretched out your lungs, they would be as big as a tennis court!' },
+  { id: 'stomach', name: 'Stomach', description: 'The stomach helps digest the food you eat.', learned: 0, funFact: 'Your stomach can growl even when you\'re not hungry - it\'s just digesting food!' },
+  { id: 'bones', name: 'Bones', description: 'Bones protect your body and help you move around.', learned: 0, funFact: 'You have 206 bones in your body, and the smallest one is in your ear!' },
+  { id: 'muscles', name: 'Muscles', description: 'Muscles help you move and stay strong.', learned: 0, funFact: 'You use over 30 muscles just to smile!' },
 ];
 
 const DoctorPortal = () => {
