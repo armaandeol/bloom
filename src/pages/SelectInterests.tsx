@@ -1,121 +1,274 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { useAuth } from '../contexts/AuthContext';
 
-type CareerOption = {
-  id: string;
-  title: string;
-  icon: JSX.Element;
-  comingSoon?: boolean;
+type InterestResponse = {
+  space_exploration: number;
+  scientific_experiments: number;
+  helping_others: number;
+  patience: number;
+  creativity: number;
+  empathy: number;
 };
+
+type AdditionalInfo = {
+  favorite_subjects: string[] | string;
+  hobbies: string[] | string;
+};
+
+type FormData = {
+  responses: InterestResponse;
+  additional_info: AdditionalInfo;
+};
+
+const likertOptions = [
+  { value: 0, label: "Not Likely" },
+  { value: 2.5, label: "Somewhat Likely" },
+  { value: 5, label: "Neutral" },
+  { value: 7.5, label: "Likely" },
+  { value: 10, label: "Very Likely" }
+];
 
 const SelectInterests = () => {
   const navigate = useNavigate();
-  const [selectedCareer, setSelectedCareer] = useState<string | null>(null);
-
-  const careerOptions: CareerOption[] = [
-    {
-      id: 'doctor',
-      title: 'Doctor',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-        </svg>
-      )
+  const { currentUser } = useAuth();
+  
+  const [formData, setFormData] = useState<FormData>({
+    responses: {
+      space_exploration: 5,
+      scientific_experiments: 5,
+      helping_others: 5,
+      patience: 5,
+      creativity: 5,
+      empathy: 5,
     },
-    {
-      id: 'scientist',
-      title: 'Scientist',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
-        </svg>
-      )
-    },
-    {
-      id: 'astronaut',
-      title: 'Astronaut',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-          <line x1="9" y1="9" x2="9.01" y2="9"></line>
-          <line x1="15" y1="9" x2="15.01" y2="9"></line>
-        </svg>
-      )
-    },
-    {
-      id: 'engineer',
-      title: 'Engineer',
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="16 18 22 12 16 6"></polyline>
-          <polyline points="8 6 2 12 8 18"></polyline>
-          <line x1="12" y1="2" x2="12" y2="22"></line>
-        </svg>
-      ),
-      comingSoon: true
+    additional_info: {
+      favorite_subjects: '',
+      hobbies: '',
     }
-  ];
+  });
 
-  const handleSelectCareer = (careerId: string) => {
-    // Don't allow selection of "coming soon" careers
-    const career = careerOptions.find(c => c.id === careerId);
-    if (career?.comingSoon) return;
+  const [favoriteSubjects, setFavoriteSubjects] = useState<string>('');
+  const [hobbies, setHobbies] = useState<string>('');
+
+  const handleRatingChange = (category: keyof InterestResponse, value: number) => {
+    setFormData({
+      ...formData,
+      responses: {
+        ...formData.responses,
+        [category]: value
+      }
+    });
+  };
+
+  const handleFavoriteSubjectsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFavoriteSubjects(e.target.value);
+  };
+
+  const handleHobbiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHobbies(e.target.value);
+  };
+
+  const handleBack = () => {
+    navigate('/create-account');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    setSelectedCareer(careerId);
+    // Convert comma-separated strings to arrays
+    const favoriteSubjectsArray = favoriteSubjects
+      .split(',')
+      .map(subject => subject.trim())
+      .filter(subject => subject !== '');
+      
+    const hobbiesArray = hobbies
+      .split(',')
+      .map(hobby => hobby.trim())
+      .filter(hobby => hobby !== '');
     
-    // Navigate after a short delay without animations
-    setTimeout(() => {
+    // Create the final form data object
+    const processedFormData = {
+      responses: formData.responses,
+      additional_info: {
+        favorite_subjects: favoriteSubjectsArray,
+        hobbies: hobbiesArray
+      }
+    };
+
+    try {
+      console.log('Sending data to server:', processedFormData);
+      
+      // Using the proxy configured in vite.config.ts
+      const response = await fetch('/assess', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(processedFormData),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Response from server:', data);
+      
+      // Save career recommendation to Firestore if user is logged in
+      if (currentUser && data.recommendation) {
+        try {
+          const userDocRef = doc(db, "students", currentUser.uid);
+          await updateDoc(userDocRef, {
+            interest: data.recommendation
+          });
+          console.log('Interest saved to Firestore:', data.recommendation);
+        } catch (error) {
+          console.error('Error saving interest to Firestore:', error);
+          // Continue to next page even if saving to Firestore fails
+        }
+      }
+      
+      // Navigate to the next page
       navigate('/loading-experience');
-    }, 500);
+    } catch (error) {
+      console.error('Error submitting assessment:', error);
+      alert('There was an error submitting your assessment. Please try again later.');
+    }
+  };
+
+  const renderLikertScale = (category: keyof InterestResponse, value: number) => {
+    return (
+      <div className="flex justify-between mt-2 mb-4">
+        {likertOptions.map((option) => (
+          <div key={option.value} className="flex flex-col items-center">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name={category}
+                value={option.value}
+                checked={value === option.value}
+                onChange={() => handleRatingChange(category, option.value)}
+                className="form-radio h-4 w-4 text-blue-600"
+              />
+              <span className="ml-1 text-sm text-slate-700">{option.label}</span>
+            </label>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Content */}
-      <div className="flex items-center h-full">
-        <div className="container mx-auto px-4 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">What Career Path Interests You?</h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Select an option that aligns with your interests. We'll use this to personalize your career guidance experience.
+    <div className="min-h-screen bg-white py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Let's Get to Know You</h1>
+            <p className="text-lg text-slate-600">
+              Answer these questions to help us personalize your career guidance experience.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            {careerOptions.map((career) => (
-              <div
-                key={career.id}
-                data-id={career.id} 
-                className={`cursor-pointer relative bg-white p-8 rounded-2xl border shadow-md
-                  ${selectedCareer === career.id ? 'border-blue-500 ring-2 ring-blue-500 ring-opacity-50' : 'border-slate-200 hover:border-blue-300'} 
-                  transition-all duration-300 flex flex-col items-center text-center
-                  ${!career.comingSoon ? 'hover:transform hover:scale-[1.03]' : 'opacity-90'}`}
-                onClick={() => !career.comingSoon && handleSelectCareer(career.id)}
-              >
-                {career.icon}
-                <h3 className="text-2xl font-bold mb-2 text-slate-900">{career.title}</h3>
+          <div className="bg-white rounded-xl shadow-md p-6 md:p-8">
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-8">
+                {/* Space Exploration */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Space Exploration</h2>
+                  <p className="text-slate-600 text-sm mb-1">How interested are you in learning about space, planets, and stars?</p>
+                  <p className="text-slate-600 text-sm mb-2">Do you enjoy watching or reading about space missions and astronauts?</p>
+                  {renderLikertScale('space_exploration', formData.responses.space_exploration)}
+                </div>
                 
-                {career.comingSoon ? (
-                  <div className="mt-2">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                      Coming Soon
-                    </span>
-                  </div>
-                ) : (
-                  <p className="text-slate-600 text-sm">Click to select</p>
-                )}
+                {/* Scientific Experiments */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Scientific Experiments</h2>
+                  <p className="text-slate-600 text-sm mb-1">How much do you enjoy doing science experiments or watching them?</p>
+                  <p className="text-slate-600 text-sm mb-2">Are you curious about how things work in nature?</p>
+                  {renderLikertScale('scientific_experiments', formData.responses.scientific_experiments)}
+                </div>
+                
+                {/* Helping Others */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Helping Others</h2>
+                  <p className="text-slate-600 text-sm mb-1">How much do you like helping people when they're not feeling well?</p>
+                  <p className="text-slate-600 text-sm mb-2">Do you enjoy taking care of others?</p>
+                  {renderLikertScale('helping_others', formData.responses.helping_others)}
+                </div>
+                
+                {/* Patience */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Patience</h2>
+                  <p className="text-slate-600 text-sm mb-1">How well can you wait for results when doing something?</p>
+                  <p className="text-slate-600 text-sm mb-2">Do you mind spending time on tasks that take a while?</p>
+                  {renderLikertScale('patience', formData.responses.patience)}
+                </div>
+                
+                {/* Creativity */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Creativity</h2>
+                  <p className="text-slate-600 text-sm mb-1">How much do you enjoy coming up with new ideas?</p>
+                  <p className="text-slate-600 text-sm mb-2">Do you like creating or designing things?</p>
+                  {renderLikertScale('creativity', formData.responses.creativity)}
+                </div>
+                
+                {/* Empathy */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Empathy</h2>
+                  <p className="text-slate-600 text-sm mb-1">How well do you understand how others might be feeling?</p>
+                  <p className="text-slate-600 text-sm mb-2">Do you care about how others are doing?</p>
+                  {renderLikertScale('empathy', formData.responses.empathy)}
+                </div>
+                
+                {/* Favorite Subjects */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Favorite Subjects</h2>
+                  <p className="text-slate-600 text-sm mb-1">Which school subjects do you enjoy the most?</p>
+                  <p className="text-slate-600 text-sm mb-4">What topics do you like learning about?</p>
+                  <input
+                    type="text"
+                    value={favoriteSubjects}
+                    onChange={handleFavoriteSubjectsChange}
+                    placeholder="Enter subjects separated by commas (e.g., Science, Math, Art)"
+                    className="w-full p-3 border border-slate-300 rounded-lg"
+                  />
+                </div>
+                
+                {/* Hobbies */}
+                <div className="p-4 bg-slate-50 rounded-lg">
+                  <h2 className="text-xl font-semibold text-slate-900">Hobbies</h2>
+                  <p className="text-slate-600 text-sm mb-1">What activities do you enjoy doing in your free time?</p>
+                  <p className="text-slate-600 text-sm mb-4">What do you like to do for fun?</p>
+                  <input
+                    type="text"
+                    value={hobbies}
+                    onChange={handleHobbiesChange}
+                    placeholder="Enter hobbies separated by commas (e.g., Reading, Sports, Music)"
+                    className="w-full p-3 border border-slate-300 rounded-lg"
+                  />
+                </div>
               </div>
-            ))}
-          </div>
-          
-          <div className="mt-10 text-center">
-            <button
-              onClick={() => navigate('/create-account')}
-              className="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
-            >
-              ← Go Back
-            </button>
+              
+              <div className="flex justify-between mt-8">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  Go Back
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
