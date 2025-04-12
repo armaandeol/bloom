@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import {
   Rocket,
@@ -17,6 +17,9 @@ import {
   Clock,
   Languages
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface PlanetNodeProps {
   title: string;
@@ -98,11 +101,23 @@ const PlanetNode: React.FC<PlanetNodeProps> = ({
   );
 };
 
+interface PlanetData {
+  id: string;
+  title: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+}
+
 interface GalaxyMapProps {
   onNodeSelect: (subject: string) => void;
 }
 
 const GalaxyMap: React.FC<GalaxyMapProps> = ({ onNodeSelect }) => {
+  const { userData, currentUser } = useAuth();
+  const [planets, setPlanets] = useState<PlanetData[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Generate animated stars
   const generateStars = () => {
     const stars = [];
@@ -122,6 +137,178 @@ const GalaxyMap: React.FC<GalaxyMapProps> = ({ onNodeSelect }) => {
     }
     return stars;
   };
+
+  // Function to generate a random position within an orbit
+  const generateRandomOrbit = (orbitIndex: number) => {
+    const baseRadius = 150;
+    const radius = baseRadius + (orbitIndex * 50);
+    const angle = Math.random() * 360;
+    const orbitSpeed = 15 + Math.random() * 20;
+    return {
+      radius,
+      startPosition: angle,
+      speed: orbitSpeed
+    };
+  };
+
+  // Map icon name to component
+  const getIconComponent = (iconName: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      'Rocket': <Rocket className="text-white" size={28} />,
+      'Satellite': <Satellite className="text-white" size={28} />,
+      'Atom': <Atom className="text-white" size={28} />,
+      'Globe': <Globe className="text-white" size={28} />,
+      'Music': <Music className="text-white" size={28} />,
+      'FlaskConical': <FlaskConical className="text-white" size={28} />,
+      'BookOpen': <BookOpen className="text-white" size={28} />,
+      'Code': <Code className="text-white" size={28} />
+    };
+    
+    return iconMap[iconName] || <Atom className="text-white" size={28} />;
+  };
+
+  useEffect(() => {
+    const fetchPlanets = async () => {
+      if (!userData) return;
+      
+      // Check if the user's interest is "Astronaut"
+      if (userData.interest === "Astronaut") {
+        try {
+          setLoading(true);
+          const ageCategory = userData.ageCategory || "Adults";
+          
+          let planetsRef;
+          let defaultPlanets: PlanetData[] = [];
+          
+          // Get the collection reference based on age category
+          if (ageCategory === "Adults") {
+            planetsRef = collection(db, "astronaut", "Adults", "planets");
+            defaultPlanets = [
+              {
+                id: "mars",
+                title: "Mars Mission",
+                description: "Learn about Mars exploration",
+                color: "red",
+                icon: "Rocket"
+              },
+              {
+                id: "iss",
+                title: "ISS Operations",
+                description: "International Space Station",
+                color: "blue",
+                icon: "Satellite"
+              },
+              {
+                id: "moon",
+                title: "Lunar Base",
+                description: "Moon colonization studies",
+                color: "purple",
+                icon: "Globe"
+              },
+              {
+                id: "physics",
+                title: "Space Physics",
+                description: "Advanced physics for space travel",
+                color: "green",
+                icon: "Atom"
+              }
+            ];
+          } else if (ageCategory === "Teens") {
+            planetsRef = collection(db, "astronaut", "Teens", "planets");
+            defaultPlanets = [
+              {
+                id: "space-academy",
+                title: "Space Academy",
+                description: "Introduction to space training",
+                color: "blue",
+                icon: "BookOpen"
+              },
+              {
+                id: "satellite",
+                title: "Satellite Design",
+                description: "Learn to design satellites",
+                color: "green",
+                icon: "Satellite"
+              },
+              {
+                id: "astronomy",
+                title: "Astronomy Basics",
+                description: "Understanding our solar system",
+                color: "purple",
+                icon: "Globe"
+              },
+              {
+                id: "rocketry",
+                title: "Junior Rocketry",
+                description: "Build your first rocket",
+                color: "red",
+                icon: "Rocket"
+              }
+            ];
+          } else if (ageCategory === "Kids") {
+            planetsRef = collection(db, "astronaut", "Kids", "planets");
+            defaultPlanets = [
+              {
+                id: "space-fun",
+                title: "Space Fun",
+                description: "Fun activities about space",
+                color: "yellow",
+                icon: "Rocket"
+              },
+              {
+                id: "star-explorer",
+                title: "Star Explorer",
+                description: "Learn about stars and constellations",
+                color: "purple",
+                icon: "BookOpen"
+              },
+              {
+                id: "planet-adventure",
+                title: "Planet Adventure",
+                description: "Discover planets in our solar system",
+                color: "blue",
+                icon: "Globe"
+              },
+              {
+                id: "space-games",
+                title: "Space Games",
+                description: "Fun games about space",
+                color: "green",
+                icon: "Satellite"
+              }
+            ];
+          }
+          
+          if (planetsRef) {
+            // Fetch planets from Firestore
+            const snapshot = await getDocs(planetsRef);
+            
+            const planetData: PlanetData[] = [];
+            snapshot.forEach(doc => {
+              planetData.push({
+                id: doc.id,
+                ...doc.data() as Omit<PlanetData, 'id'>
+              });
+            });
+            
+            // If no planets found in Firestore, use default planets for testing
+            if (planetData.length === 0) {
+              console.log(`No planets found in Firestore for ${ageCategory}, using default data`);
+              setPlanets(defaultPlanets);
+            } else {
+              setPlanets(planetData);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching planet data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    
+    fetchPlanets();
+  }, [userData]);
 
   return (
     <div className="galaxy-container relative h-full w-full bg-gradient-to-br from-blue-950 via-purple-900 to-blue-950 overflow-hidden">
@@ -150,85 +337,94 @@ const GalaxyMap: React.FC<GalaxyMapProps> = ({ onNodeSelect }) => {
         ))}
       </div>
 
-      {/* Planet nodes */}
-      <PlanetNode 
-        title="Math" 
-        icon={<Atom className="text-white" size={28} />} 
-        onClick={() => onNodeSelect('math')}
-        progress={60}
-        position={{ top: "50%", left: "50%" }}
-        orbitRadius={150}
-        orbitSpeed={20}
-        orbitStartPosition={0}
-        className="bg-blue-500/80 hover:bg-blue-400/90"
-      />
+      {/* Dynamic Planet nodes based on user interest and age category */}
+      {userData?.interest === "Astronaut" && planets.map((planet, index) => {
+        const orbit = generateRandomOrbit(index % 4 + 1);
+        return (
+          <PlanetNode 
+            key={planet.id}
+            title={planet.title} 
+            icon={getIconComponent(planet.icon || 'Atom')}
+            onClick={() => onNodeSelect(planet.id)}
+            progress={Math.floor(Math.random() * 100)}
+            position={{ top: "50%", left: "50%" }}
+            orbitRadius={orbit.radius}
+            orbitSpeed={orbit.speed}
+            orbitStartPosition={orbit.startPosition}
+            className={`bg-${planet.color || 'blue'}-500/80 hover:bg-${planet.color || 'blue'}-400/90`}
+          />
+        );
+      })}
 
-      <PlanetNode 
-        title="English" 
-        icon={<BookOpen className="text-white" size={28} />} 
-        onClick={() => onNodeSelect('english')}
-        progress={35}
-        position={{ top: "50%", left: "50%" }}
-        orbitRadius={250}
-        orbitSpeed={25}
-        orbitStartPosition={72}
-        className="bg-purple-500/80 hover:bg-purple-400/90"
-      />
+      {/* Display default planets if no user data or not astronaut interest */}
+      {(!userData?.interest || userData.interest !== "Astronaut" || planets.length === 0) && (
+        <>
+          <PlanetNode 
+            title="Math" 
+            icon={<Atom className="text-white" size={28} />} 
+            onClick={() => onNodeSelect('math')}
+            progress={60}
+            position={{ top: "50%", left: "50%" }}
+            orbitRadius={150}
+            orbitSpeed={20}
+            orbitStartPosition={0}
+            className="bg-blue-500/80 hover:bg-blue-400/90"
+          />
 
-      <PlanetNode 
-        title="Science" 
-        icon={<FlaskConical className="text-white" size={28} />} 
-        onClick={() => onNodeSelect('science')}
-        progress={45}
-        position={{ top: "50%", left: "50%" }}
-        orbitRadius={200}
-        orbitSpeed={22}
-        orbitStartPosition={144}
-        className="bg-green-500/80 hover:bg-green-400/90"
-      />
+          <PlanetNode 
+            title="English" 
+            icon={<BookOpen className="text-white" size={28} />} 
+            onClick={() => onNodeSelect('english')}
+            progress={35}
+            position={{ top: "50%", left: "50%" }}
+            orbitRadius={250}
+            orbitSpeed={25}
+            orbitStartPosition={72}
+            className="bg-purple-500/80 hover:bg-purple-400/90"
+          />
 
-      <PlanetNode 
-        title="Life Skills" 
-        icon={<Users className="text-white" size={28} />} 
-        onClick={() => onNodeSelect('life-skills')}
-        progress={75}
-        position={{ top: "50%", left: "50%" }}
-        orbitRadius={300}
-        orbitSpeed={28}
-        orbitStartPosition={216}
-        className="bg-orange-500/80 hover:bg-orange-400/90"
-      />
+          <PlanetNode 
+            title="Science" 
+            icon={<FlaskConical className="text-white" size={28} />} 
+            onClick={() => onNodeSelect('science')}
+            progress={45}
+            position={{ top: "50%", left: "50%" }}
+            orbitRadius={200}
+            orbitSpeed={22}
+            orbitStartPosition={144}
+            className="bg-green-500/80 hover:bg-green-400/90"
+          />
 
-      <PlanetNode 
-        title="Emotions" 
-        icon={<HeartPulse className="text-white" size={28} />} 
-        onClick={() => onNodeSelect('emotions')}
-        progress={50}
-        position={{ top: "50%", left: "50%" }}
-        orbitRadius={180}
-        orbitSpeed={18}
-        orbitStartPosition={288}
-        className="bg-pink-500/80 hover:bg-pink-400/90"
-      />
-
-      <PlanetNode 
-        title="Memory Games" 
-        icon={<BrainCircuit className="text-white" size={28} />} 
-        onClick={() => onNodeSelect('memory')}
-        progress={25}
-        position={{ top: "50%", left: "50%" }}
-        orbitRadius={350}
-        orbitSpeed={30}
-        orbitStartPosition={230}
-        className="bg-indigo-500/80 hover:bg-indigo-400/90"
-      />
+          <PlanetNode 
+            title="Life Skills" 
+            icon={<Users className="text-white" size={28} />} 
+            onClick={() => onNodeSelect('life-skills')}
+            progress={75}
+            position={{ top: "50%", left: "50%" }}
+            orbitRadius={300}
+            orbitSpeed={28}
+            orbitStartPosition={216}
+            className="bg-orange-500/80 hover:bg-orange-400/90"
+          />
+        </>
+      )}
 
       {/* Additional decorative elements */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="animate-pulse text-center text-white">
           <div className="text-lg font-bold mb-2">Galaxy of Knowledge</div>
+          {userData?.interest === "Astronaut" && (
+            <div className="text-md opacity-80">{userData.ageCategory || ""} Astronaut Training</div>
+          )}
         </div>
       </div>
+
+      {/* Loading indicator */}
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+          <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+        </div>
+      )}
     </div>
   );
 };
