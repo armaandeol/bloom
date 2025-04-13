@@ -127,7 +127,7 @@ const ScientistPortal = () => {
       </main>
       
       <footer className="relative z-10 text-center text-sm text-blue-800 p-4 bg-gradient-to-r from-blue-200/60 to-blue-300/60 backdrop-blur-sm border-t border-blue-400/20 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-        <p className="font-medium">Bloom - A learning platform designed for children with Autism Spectrum Disorder</p>
+        <p className="font-medium">Bloom - A learning platform designed for You</p>
       </footer>
     </div>
   );

@@ -91,6 +91,12 @@ const CreateAccount = () => {
     return age;
   };
 
+  const getAgeCategory = (age: number): string => {
+    if (age < 10) return "Kids";
+    if (age < 18) return "Teens";
+    return "Adults";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -110,12 +116,15 @@ const CreateAccount = () => {
         
         // Calculate age from DOB
         const age = calculateAge(formData.dob);
+        // Determine age category
+        const ageCategory = getAgeCategory(age);
         
         // Store user data in Firestore
         await setDoc(doc(db, "students", user.uid), {
           name: formData.name,
           email: formData.email,
           age: age,
+          ageCategory: ageCategory,
           dob: formData.dob,
           createdAt: new Date()
         });

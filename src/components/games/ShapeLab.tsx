@@ -115,7 +115,7 @@ export const ShapeLab: React.FC = () => {
             width: '60px',
             height: '60px',
             borderRadius: '50%',
-            border: `3px dashed ${isMatched ? color : '#666'}`,
+            border: 3px dashed ${isMatched ? color : '#666'},
             opacity: isMatched ? 0.3 : 0.8
           }} />
         );
@@ -124,7 +124,7 @@ export const ShapeLab: React.FC = () => {
           <div style={{
             width: '60px',
             height: '60px',
-            border: `3px dashed ${isMatched ? color : '#666'}`,
+            border: 3px dashed ${isMatched ? color : '#666'},
             opacity: isMatched ? 0.3 : 0.8
           }} />
         );
@@ -135,7 +135,7 @@ export const ShapeLab: React.FC = () => {
             height: 0,
             borderLeft: '30px solid transparent',
             borderRight: '30px solid transparent',
-            borderBottom: `60px solid ${isMatched ? color : '#666'}`,
+            borderBottom: 60px solid ${isMatched ? color : '#666'},
             opacity: isMatched ? 0.3 : 0.8
           }} />
         );
@@ -170,7 +170,7 @@ export const ShapeLab: React.FC = () => {
         <h1 style={styles.title}>
           <span style={styles.titleIcon}>🧪</span>
           <span style={styles.titleText}>MAD SHAPE LAB</span>
-          <span style={styles.titleIcon}>⚗️</span>
+          <span style={styles.titleIcon}>⚗</span>
         </h1>
         <div style={styles.labControls}>
           <div style={styles.switch} />
@@ -186,8 +186,8 @@ export const ShapeLab: React.FC = () => {
           style={{
             ...styles.particle,
             ...(p.type === 'sparkle' ? styles.sparkle : styles.burst),
-            left: `${p.x}%`,
-            top: `${p.y}%`,
+            left: ${p.x}%,
+            top: ${p.y}%,
             backgroundColor: p.color
           }}
           onAnimationEnd={() => setParticles(prev => prev.filter(part => part.id !== p.id))}
@@ -198,14 +198,14 @@ export const ShapeLab: React.FC = () => {
       <div style={styles.bubbles}>
         {Array.from({ length: 20 }).map((_, i) => (
           <div 
-            key={`bubble-${i}`} 
+            key={bubble-${i}} 
             style={{
               ...styles.bubble,
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${5 + Math.random() * 10}s`,
-              animationDelay: `${Math.random() * 5}s`,
-              width: `${10 + Math.random() * 20}px`,
-              height: `${10 + Math.random() * 20}px`,
+              left: ${Math.random() * 100}%,
+              animationDuration: ${5 + Math.random() * 10}s,
+              animationDelay: ${Math.random() * 5}s,
+              width: ${10 + Math.random() * 20}px,
+              height: ${10 + Math.random() * 20}px,
               opacity: 0.1 + Math.random() * 0.2
             }}
           />
@@ -218,13 +218,13 @@ export const ShapeLab: React.FC = () => {
           <div style={styles.fireworks}>
             {Array.from({ length: 12 }).map((_, i) => (
               <div 
-                key={`fw-${i}`}
+                key={fw-${i}}
                 style={{
                   ...styles.firework,
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
+                  left: ${Math.random() * 100}%,
+                  top: ${Math.random() * 100}%,
                   backgroundColor: Object.values(shapeColors)[i % 3],
-                  animationDelay: `${Math.random() * 2}s`
+                  animationDelay: ${Math.random() * 2}s
                 }}
               />
             ))}
@@ -316,13 +316,13 @@ export const ShapeLab: React.FC = () => {
           <div 
             style={{
               ...styles.progressBar,
-              width: `${(matched.length / initialShapes.length) * 100}%`
+              width: ${(matched.length / initialShapes.length) * 100}%
             }}
           />
           <div style={styles.progressMarkers}>
             {Array.from({ length: initialShapes.length + 1 }).map((_, i) => (
               <div 
-                key={`marker-${i}`}
+                key={marker-${i}}
                 style={{
                   ...styles.progressMark,
                   backgroundColor: i <= matched.length ? '#4ECDC4' : '#333'
