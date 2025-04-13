@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const LoadingExperience = () => {
   const navigate = useNavigate();
@@ -37,9 +39,44 @@ const LoadingExperience = () => {
       });
     }, 2000);
     
-    // Navigate after a set time
-    const timer = setTimeout(() => {
-      navigate('/original-app'); // This would navigate to your actual dashboard
+    // Navigate after a set time with interest check
+    const timer = setTimeout(async () => {
+      try {
+        const currentUser = auth.currentUser;
+        
+        if (currentUser) {
+          // Get user data from Firestore
+          const userDocRef = doc(db, "students", currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const interest = userData.interest;
+            
+            // Redirect based on interest
+            if (interest === "Scientist") {
+              navigate('/scientist-portal');
+            } else if (interest === "Doctor") {
+              navigate('/doctor-portal');
+            } else if (interest === "Astronaut" || !interest) {
+              navigate('/original-app');
+            } else {
+              // Default fallback
+              navigate('/original-app');
+            }
+          } else {
+            // User document doesn't exist, default to astronaut
+            navigate('/original-app');
+          }
+        } else {
+          // No authenticated user, default to astronaut
+          navigate('/original-app');
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        // Default to astronaut in case of error
+        navigate('/original-app');
+      }
     }, 8000); // Navigate after 8 seconds
     
     return () => {

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -62,14 +63,43 @@ const SignIn = () => {
       
       try {
         // Sign in with Firebase Authentication
-        await signInWithEmailAndPassword(
+        const userCredential = await signInWithEmailAndPassword(
           auth, 
           formData.email, 
           formData.password
         );
         
-        // Navigate to dashboard or home page after successful sign in
-        navigate('/original-app');
+        const user = userCredential.user;
+        
+        try {
+          // Get user data from Firestore
+          const userDocRef = doc(db, "students", user.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const interest = userData.interest;
+            
+            // Redirect based on interest
+            if (interest === "Scientist") {
+              navigate('/scientist-portal');
+            } else if (interest === "Doctor") {
+              navigate('/doctor-portal');
+            } else if (interest === "Astronaut" || !interest) {
+              navigate('/original-app');
+            } else {
+              // Default fallback
+              navigate('/original-app');
+            }
+          } else {
+            // User document doesn't exist, default to astronaut
+            navigate('/original-app');
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          // Default to astronaut in case of error
+          navigate('/original-app');
+        }
       } catch (error: any) {
         console.error("Error signing in:", error);
         let errorMessage = 'Failed to sign in. Please check your credentials.';

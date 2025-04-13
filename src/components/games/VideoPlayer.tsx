@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, AlertTriangle, CheckCircle2, PlayCircle } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, CheckCircle2, PlayCircle, SmilePlus, Frown, Meh } from 'lucide-react';
 
 interface VideoPlayerProps {
   videoUrl: string;
@@ -9,11 +9,60 @@ interface VideoPlayerProps {
   onBack: () => void;
 }
 
+interface EmotionResult {
+  emotion: string;
+  confidence: number;
+  total_detections: number;
+}
+
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, onBack }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [videoEnded, setVideoEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [emotionTracking, setEmotionTracking] = useState(false);
+  const [emotionData, setEmotionData] = useState<EmotionResult | null>(null);
+  const [emotionError, setEmotionError] = useState<string | null>(null);
+
+  // Function to toggle emotion tracking
+  const toggleEmotionTracking = () => {
+    setEmotionTracking(!emotionTracking);
+  };
+
+  // Function to fetch emotion data
+  const fetchEmotionData = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/analyze_emotion');
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const data = await response.json();
+      setEmotionData(data);
+      setEmotionError(null);
+    } catch (err) {
+      console.error('Error fetching emotion data:', err);
+      setEmotionError(err instanceof Error ? err.message : 'Unknown error occurred');
+    }
+  };
+
+  // Poll for emotion data when tracking is enabled
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    
+    if (emotionTracking) {
+      // Start with initial fetch
+      fetchEmotionData();
+      
+      // Then poll every 5 seconds
+      intervalId = setInterval(fetchEmotionData, 5000);
+    }
+    
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [emotionTracking]);
 
   const handleError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     setIsLoading(false);
@@ -52,6 +101,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, onBack }) =>
   const handleVideoEnded = () => {
     console.log("Video playback completed");
     setVideoEnded(true);
+    // Stop emotion tracking when video ends
+    setEmotionTracking(false);
   };
 
   const handleReplay = () => {
@@ -59,6 +110,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, onBack }) =>
       videoRef.current.currentTime = 0;
       videoRef.current.play();
       setVideoEnded(false);
+    }
+  };
+
+  // Get the appropriate emotion icon
+  const getEmotionIcon = (emotion: string) => {
+    switch (emotion.toLowerCase()) {
+      case 'happy':
+        return <SmilePlus className="text-green-400" size={24} />;
+      case 'angry':
+        return <Frown className="text-red-400" size={24} />;
+      case 'neutral':
+      default:
+        return <Meh className="text-blue-400" size={24} />;
     }
   };
 
@@ -75,11 +139,59 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, onBack }) =>
             <ChevronLeft className="mr-1" size={18} />
             Back
           </Button>
+          
+          {/* Emotion tracking toggle button */}
+          <Button
+            variant={emotionTracking ? "default" : "outline"}
+            size="sm"
+            onClick={toggleEmotionTracking}
+            className={`${emotionTracking ? 'bg-green-600 hover:bg-green-700' : 'bg-white/10 hover:bg-white/20'} text-white`}
+          >
+            {emotionTracking ? 'Tracking On' : 'Track Emotions'}
+          </Button>
         </div>
         
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-white">{title}</h1>
         </div>
+        
+        {/* Emotion tracking display */}
+        {emotionTracking && (
+          <div className="mb-4 p-3 bg-black/30 rounded-lg">
+            <div className="flex justify-between items-center">
+              <h3 className="text-white font-semibold">Emotion Tracking</h3>
+              
+              {emotionError ? (
+                <span className="text-red-400 text-sm">{emotionError}</span>
+              ) : emotionData ? (
+                <div className="flex items-center">
+                  {getEmotionIcon(emotionData.emotion)}
+                  <span className="ml-2 text-white">
+                    {emotionData.emotion} ({emotionData.confidence.toFixed(1)}%)
+                  </span>
+                  <span className="ml-3 text-white/70 text-xs">
+                    Detections: {emotionData.total_detections}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-white/70">Detecting...</span>
+              )}
+            </div>
+            
+            {/* Video feed from backend */}
+            {emotionTracking && (
+              <div className="mt-3 w-full">
+                <div className="relative w-full rounded-lg overflow-hidden" style={{ height: '120px' }}>
+                  <img 
+                    src="http://localhost:8000/video_feed" 
+                    alt="Emotion detection feed"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         
         <div className="flex-1 flex flex-col items-center justify-center">
           {isLoading && !error && !videoEnded && (
