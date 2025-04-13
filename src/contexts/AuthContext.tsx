@@ -8,6 +8,9 @@ interface UserData {
   email: string;
   age?: number;
   dob?: string;
+  interest?: string;
+  ageCategory?: string;
+  createdAt?: Date;
 }
 
 interface AuthContextType {
