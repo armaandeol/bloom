@@ -1,25 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GalaxyMap from "../components/GalaxyMap";
-import ActivityZone from "@/components/ActivityZone";
-import EmotionTracker from "@/components/EmotionTracker";
-import BreakActivity from "@/components/BreakActivity";
-import HeroSection from "@/components/HeroSection";
-import { useAuth } from '@/contexts/AuthContext';
+import GalaxyMap from '../components/GalaxyMap';
+import ActivityZone from '../components/ActivityZone';
+import EmotionTracker from '../components/EmotionTracker';
+import BreakActivity from '../components/BreakActivity';
+import HeroSection from '../components/HeroSection';
+import { useAuth } from '../contexts/AuthContext';
 
 const Index = () => {
   const navigate = useNavigate();
   const { userData } = useAuth();
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [selectedPlanetTitle, setSelectedPlanetTitle] = useState<string | null>(null);
   const [isBreakTime, setIsBreakTime] = useState(false);
   const [showEmotionTracker, setShowEmotionTracker] = useState(false);
 
-  const handleNodeSelect = (subject: string) => {
+  const handleNodeSelect = (subject: string, title?: string) => {
     setSelectedSubject(subject);
+    setSelectedPlanetTitle(title || null);
   };
 
   const handleBack = () => {
     setSelectedSubject(null);
+    setSelectedPlanetTitle(null);
   };
 
   const handleBreakRequested = () => {
@@ -112,7 +115,11 @@ const Index = () => {
                   {isBreakTime ? (
                     <BreakActivity onBreakComplete={handleBreakComplete} />
                   ) : (
-                    <ActivityZone subject={selectedSubject} onBack={handleBack} />
+                    <ActivityZone 
+                      subject={selectedSubject} 
+                      planetTitle={selectedPlanetTitle}
+                      onBack={handleBack} 
+                    />
                   )}
                 </div>
               )}
@@ -138,7 +145,7 @@ const Index = () => {
       </main>
       
       <footer className="relative z-10 text-center text-sm text-white p-4 bg-gradient-footer bg-opacity-80 backdrop-blur-sm border-t border-white/20 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-        <p className="font-medium">Bloom - A learning platform designed for children with Autism Spectrum Disorder</p>
+        <p className="font-medium">Bloom - A learning platform designed for You</p>
       </footer>
     </div>
   );

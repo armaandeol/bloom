@@ -112,7 +112,7 @@ interface PlanetData {
 }
 
 interface GalaxyMapProps {
-  onNodeSelect: (subject: string) => void;
+  onNodeSelect: (subject: string, title?: string) => void;
 }
 
 const GalaxyMap: React.FC<GalaxyMapProps> = ({ onNodeSelect }) => {
@@ -347,7 +347,7 @@ const GalaxyMap: React.FC<GalaxyMapProps> = ({ onNodeSelect }) => {
             key={planet.id}
             title={planet.title} 
             icon={getIconComponent(planet.icon || 'Atom')}
-            onClick={() => onNodeSelect(planet.id)}
+            onClick={() => onNodeSelect(planet.id, planet.title)}
             progress={Math.floor(Math.random() * 100)}
             position={{ top: "50%", left: "50%" }}
             orbitRadius={orbit.radius}
