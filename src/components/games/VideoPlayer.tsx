@@ -32,7 +32,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, onBack }) =>
   // Function to fetch emotion data
   const fetchEmotionData = async () => {
     try {
-      const response = await fetch('http://localhost:8000/analyze_emotion');
+      const response = await fetch('https://fluent-divine-ghost.ngrok-free.app/analyze_emotion');
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
@@ -129,6 +129,58 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, onBack }) =>
   return (
     <Card className="h-full flex flex-col relative overflow-hidden bg-gradient-to-br from-blue-950 via-purple-900 to-blue-950 border-none shadow-sm rounded-xl">
       <div className="p-6 flex-1 z-10 flex flex-col">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-white">{title}</h1>
+        </div>
+        
+        {/* Emotion tracking display */}
+        {emotionTracking && (
+          <div className="absolute top-20 right-5 z-20 w-64 bg-black/60 backdrop-blur-sm rounded-lg shadow-lg border border-white/10 overflow-hidden">
+            <div className="p-2 bg-black/40 border-b border-white/10">
+              <h3 className="text-white text-sm font-semibold flex items-center justify-between">
+                Emotion Tracking
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={toggleEmotionTracking}
+                  className="h-6 w-6 p-0 text-white/70 hover:text-white hover:bg-white/10"
+                >
+                  ×
+                </Button>
+              </h3>
+            </div>
+            
+            <div className="p-2 border-b border-white/10 flex items-center">
+              {emotionError ? (
+                <span className="text-red-400 text-xs">{emotionError}</span>
+              ) : emotionData ? (
+                <div className="flex items-center w-full">
+                  {getEmotionIcon(emotionData.emotion)}
+                  <div className="ml-2 flex-1">
+                    <div className="text-white text-sm font-medium">
+                      {emotionData.emotion} ({emotionData.confidence.toFixed(1)}%)
+                    </div>
+                    <div className="text-white/70 text-xs">
+                      Detections: {emotionData.total_detections}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <span className="text-white/70 text-xs">Detecting...</span>
+              )}
+            </div>
+            
+            {/* Compact video feed */}
+            <div className="w-full" style={{ height: '80px' }}>
+              <img 
+                src="https://fluent-divine-ghost.ngrok-free.app/video_feed" 
+                alt="Emotion detection feed"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+        
         <div className="flex justify-between items-center mb-4">
           <Button 
             variant="ghost" 
@@ -140,58 +192,18 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, title, onBack }) =>
             Back
           </Button>
           
-          {/* Emotion tracking toggle button */}
-          <Button
-            variant={emotionTracking ? "default" : "outline"}
-            size="sm"
-            onClick={toggleEmotionTracking}
-            className={`${emotionTracking ? 'bg-green-600 hover:bg-green-700' : 'bg-white/10 hover:bg-white/20'} text-white`}
-          >
-            {emotionTracking ? 'Tracking On' : 'Track Emotions'}
-          </Button>
+          {/* Emotion tracking toggle button - keep this separate */}
+          {!emotionTracking && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleEmotionTracking}
+              className="bg-white/10 hover:bg-white/20 text-white"
+            >
+              Track Emotions
+            </Button>
+          )}
         </div>
-        
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-white">{title}</h1>
-        </div>
-        
-        {/* Emotion tracking display */}
-        {emotionTracking && (
-          <div className="mb-4 p-3 bg-black/30 rounded-lg">
-            <div className="flex justify-between items-center">
-              <h3 className="text-white font-semibold">Emotion Tracking</h3>
-              
-              {emotionError ? (
-                <span className="text-red-400 text-sm">{emotionError}</span>
-              ) : emotionData ? (
-                <div className="flex items-center">
-                  {getEmotionIcon(emotionData.emotion)}
-                  <span className="ml-2 text-white">
-                    {emotionData.emotion} ({emotionData.confidence.toFixed(1)}%)
-                  </span>
-                  <span className="ml-3 text-white/70 text-xs">
-                    Detections: {emotionData.total_detections}
-                  </span>
-                </div>
-              ) : (
-                <span className="text-white/70">Detecting...</span>
-              )}
-            </div>
-            
-            {/* Video feed from backend */}
-            {emotionTracking && (
-              <div className="mt-3 w-full">
-                <div className="relative w-full rounded-lg overflow-hidden" style={{ height: '120px' }}>
-                  <img 
-                    src="http://localhost:8000/video_feed" 
-                    alt="Emotion detection feed"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
         
         <div className="flex-1 flex flex-col items-center justify-center">
           {isLoading && !error && !videoEnded && (

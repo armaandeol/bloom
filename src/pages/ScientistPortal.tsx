@@ -4,12 +4,15 @@ import ScienceLab from '../components/scientist/ScienceLab';
 import ActivityZone from '../components/scientist/ActivityZone';
 import BreakActivity from '../components/scientist/BreakActivity';
 import EmotionTracker from '../components/scientist/EmotionTracker';
-import { Link } from 'react-router-dom';
+// Import the three games
+import EquationFixer from '../components/games/EquationFixer';
+import MoleculeMatch from '../components/games/MoleculeMatch';
+import ShapeLab from '../components/games/ShapeLab';
 // First add the motion import at the top
 import { motion } from 'framer-motion';
 import { Card } from "@/components/ui/card";
 // Add missing icon imports
-import { FlaskConical, Atom, TestTube2, BrainCircuit } from 'lucide-react';
+import { FlaskConical, Atom, TestTube2, BrainCircuit, ArrowLeft } from 'lucide-react';
 
 const MOLECULE_TYPES = {
   H: { symbol: 'H', color: '#FF9999' },
@@ -115,22 +118,22 @@ const ScientistPortal = () => {
           {/* Interactive Labs Section */}
           <div className="portal-section">
             <div className="lab-buttons">
-              <Link to="/games/shape-lab" className="lab-button">
+              <button onClick={() => handleNodeSelect('shape-lab')} className="lab-button">
                 <div className="lab-icon">🧪</div>
                 <span>Shape Laboratory</span>
-              </Link>
+              </button>
             </div>
             <div className="lab-buttons">
-              <Link to="/games/equation-fixer" className="lab-button">
+              <button onClick={() => handleNodeSelect('equation-fixer')} className="lab-button">
                 <div className="lab-icon">🧪</div>
                 <span>Equation Fixer</span>
-              </Link>
+              </button>
             </div>
             <div className="lab-buttons">
-              <Link to="/games/molecule-match" className="lab-button">
+              <button onClick={() => handleNodeSelect('molecule-match')} className="lab-button">
                 <div className="lab-icon">🧪</div>
                 <span>Molecule Match</span>
-              </Link>
+              </button>
             </div>
             <div className="lab-buttons">
               <button 
@@ -170,15 +173,33 @@ const ScientistPortal = () => {
               {/* Activity Zone - Shows when subject is selected */}
               {(selectedSubject || isBreakTime) && (
                 <div className="absolute inset-0 m-4 bg-black/30 backdrop-blur-md rounded-3xl shadow-xl p-6 overflow-auto transform transition-all duration-500 hover:shadow-2xl">
+                  {/* Back button for games */}
+                  {selectedSubject && !isBreakTime && (
+                    <button 
+                      onClick={handleBack}
+                      className="absolute top-4 left-4 z-30 bg-white/20 hover:bg-white/30 backdrop-blur-sm p-3 rounded-full shadow-lg transition-transform hover:scale-110"
+                    >
+                      <ArrowLeft className="text-white" size={24} />
+                      <span className="sr-only">Back to Lab</span>
+                    </button>
+                  )}
+                  
+                  {/* Show appropriate content based on selection */}
                   {isBreakTime ? (
                     <BreakActivity onBreakComplete={handleBreakComplete} />
-                  ) : showWelcome ? (
+                  ) : selectedSubject === 'shape-lab' ? (
+                    <ShapeLab />
+                  ) : selectedSubject === 'equation-fixer' ? (
+                    <EquationFixer />
+                  ) : selectedSubject === 'molecule-match' ? (
+                    <MoleculeMatch />
+                  ) : selectedSubject === 'molecular-lab' && showWelcome ? (
                     <Card className="h-full flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-blue-950 via-purple-900 to-blue-950 border-none shadow-sm rounded-xl">
                       <div className="absolute inset-0">
                         {Array.from({ length: 100 }, (_, i) => (
                           <div 
                             key={i} 
-                            className="absolute bg-white rounded-full animate-twinkle"
+                            className="absolute bg-white rounded-full twinkle-star"
                             style={{
                               left: `${Math.random() * 100}%`,
                               top: `${Math.random() * 100}%`,
@@ -198,8 +219,19 @@ const ScientistPortal = () => {
                           Combine atoms to discover chemical compounds!
                         </p>
                       </div>
+                      
+                      {/* Add custom animation styles */}
+                      <style>{`
+                        .twinkle-star {
+                          animation: twinkle 3s infinite ease-in-out;
+                        }
+                        @keyframes twinkle {
+                          0%, 100% { opacity: 0.3; transform: scale(1); }
+                          50% { opacity: 1; transform: scale(1.2); }
+                        }
+                      `}</style>
                     </Card>
-                  ) : (
+                  ) : selectedSubject === 'molecular-lab' ? (
                     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-purple-900 to-blue-950 p-4 relative overflow-hidden">
                       {/* Molecular Lab game interface */}
                       <div className="w-full max-w-6xl z-10">
@@ -279,7 +311,7 @@ const ScientistPortal = () => {
                         </div>
                       </div>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               )}
             </div>

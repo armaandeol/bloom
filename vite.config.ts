@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       '/assess': {
-        target: 'http://127.0.0.1:8000',
+        target: 'https://fluent-divine-ghost.ngrok-free.app',
         changeOrigin: true,
         secure: false,
       }
