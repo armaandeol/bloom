@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GalaxyMap from "@/components/GalaxyMap";
+import GalaxyMap from "../components/GalaxyMap";
 import ActivityZone from "@/components/ActivityZone";
 import EmotionTracker from "@/components/EmotionTracker";
 import BreakActivity from "@/components/BreakActivity";

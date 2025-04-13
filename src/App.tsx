@@ -14,7 +14,10 @@ import LoadingExperience from "./pages/LoadingExperience";
 import ScientistPortal from "./pages/ScientistPortal";
 import SignIn from "./pages/SignIn";
 import { AuthProvider } from "./contexts/AuthContext";
-
+import PlanetMatch from "./components/games/PlanetMatch";
+import GalaxyMap from "./components/GalaxyMap";
+import OrbitBuilder from "./components/games/OrbitBuilder";
+import RocketLaunchGame from "./components/games/RocketLaunchGame"; 
 const App = () => {
   // Create a new QueryClient instance inside the component
   // This ensures it's created in the React component lifecycle
@@ -54,6 +57,9 @@ const App = () => {
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
+              <Route path="/games/planet-match" element={<PlanetMatch />} />
+              <Route path="/games/orbit-builder" element={<OrbitBuilder />} />
+              <Route path="/games/rocket-launch" element={<RocketLaunchGame />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

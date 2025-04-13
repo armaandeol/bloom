@@ -17,6 +17,7 @@ import {
   Clock,
   Languages
 } from 'lucide-react';
+import { Link } from "react-router-dom";
 
 interface PlanetNodeProps {
   title: string;
@@ -228,6 +229,42 @@ const GalaxyMap: React.FC<GalaxyMapProps> = ({ onNodeSelect }) => {
         <div className="animate-pulse text-center text-white">
           <div className="text-lg font-bold mb-2">Galaxy of Knowledge</div>
         </div>
+      </div>
+      
+      {/* Planet Match Game Button */}
+      <div className="absolute bottom-8 right-8">
+        <Link
+          to="/games/planet-match"
+          className="bg-yellow-300 text-blue-950 px-4 py-2 rounded-full 
+            font-bold shadow-lg hover:scale-105 transition-transform
+            flex items-center space-x-2"
+        >
+          <span>🪐</span>
+          <span>Play Planet Match</span>
+        </Link>
+      </div>
+
+      {/* Orbit Builder Button */}
+      <div className="absolute bottom-8 left-8">
+        <Link
+          to="/games/orbit-builder"
+          className="bg-purple-400 text-blue-950 px-4 py-2 rounded-full 
+            font-bold shadow-lg hover:scale-105 transition-transform
+            flex items-center space-x-2"
+        >
+          <span>🌌</span>
+          <span>Orbit Builder</span>
+        </Link>
+        <Link 
+        to="/games/rocket-launch"
+        className="absolute bottom-8 right-8 bg-gradient-to-r from-red-500 to-orange-500 
+        hover:from-red-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-xl
+        transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl
+        flex items-center gap-2 z-10"
+      >
+        <span className="text-2xl">🚀</span>
+        <span>Launch Rocket</span>
+      </Link>
       </div>
     </div>
   );
