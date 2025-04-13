@@ -17,7 +17,11 @@ import { AuthProvider } from "./contexts/AuthContext";
 import PlanetMatch from "./components/games/PlanetMatch";
 import GalaxyMap from "./components/GalaxyMap";
 import OrbitBuilder from "./components/games/OrbitBuilder";
-import RocketLaunchGame from "./components/games/RocketLaunchGame"; 
+import RocketLaunchGame from "./components/games/RocketLaunchGame";
+import ShapeLab from "./components/games/ShapeLab";
+import EquationFixer from "./components/games/EquationFixer";
+import MoleculeMatch from "./components/games/MoleculeMatch";
+
 const App = () => {
   // Create a new QueryClient instance inside the component
   // This ensures it's created in the React component lifecycle
@@ -60,6 +64,9 @@ const App = () => {
               <Route path="/games/planet-match" element={<PlanetMatch />} />
               <Route path="/games/orbit-builder" element={<OrbitBuilder />} />
               <Route path="/games/rocket-launch" element={<RocketLaunchGame />} />
+              <Route path="/games/shape-lab" element={<ShapeLab />} />
+              <Route path="/games/equation-fixer" element={<EquationFixer />} />
+              <Route path="/games/molecule-match" element={<MoleculeMatch />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

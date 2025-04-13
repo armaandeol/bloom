@@ -4,7 +4,7 @@ import ScienceLab from '../components/scientist/ScienceLab';
 import ActivityZone from '../components/scientist/ActivityZone';
 import BreakActivity from '../components/scientist/BreakActivity';
 import EmotionTracker from '../components/scientist/EmotionTracker';
-
+import { Link } from 'react-router-dom';
 const ScientistPortal = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [isBreakTime, setIsBreakTime] = useState(false);
@@ -40,15 +40,36 @@ const ScientistPortal = () => {
         {/* Content Layer */}
         <div className="relative z-10 flex flex-col min-h-screen">
           {/* Full-width header with 3D effect */}
-          <div className="w-full bg-gradient-to-b from-blue-200/90 to-blue-300/90 backdrop-blur-sm p-6 text-center shadow-lg border-b border-blue-400/20"> {/* Updated to lighter colors */}
-            <h2 className="text-3xl md:text-5xl font-bold mb-2 text-blue-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.3)]"> {/* Changed text color */}
+          <div className="w-full bg-gradient-to-b from-blue-200/90 to-blue-300/90 backdrop-blur-sm p-6 text-center shadow-lg border-b border-blue-400/20">
+            <h2 className="text-3xl md:text-5xl font-bold mb-2 text-blue-800 drop-shadow-[0_2px_2px_rgba(255,255,255,0.3)]">
               Explore the Laboratory of Knowledge!
             </h2>
-            <p className="text-lg md:text-2xl font-normal text-blue-700 drop-shadow-md"> {/* Changed text color */}
+            <p className="text-lg md:text-2xl font-normal text-blue-700 drop-shadow-md">
               Select a scientific field to start your learning journey!
             </p>
           </div>
-          
+        
+          {/* Interactive Labs Section */}
+          <div className="portal-section">
+            <div className="lab-buttons">
+              <Link to="/games/shape-lab" className="lab-button">
+                <div className="lab-icon">🧪</div>
+                <span>Shape Laboratory</span>
+              </Link>
+            </div>
+            <div className="lab-buttons">
+              <Link to="/games/equation-fixer" className="lab-button">
+                <div className="lab-icon">🧪</div>
+                <span>Equation Fixer</span>
+              </Link>
+            </div>
+            <div className="lab-buttons">
+              <Link to="/games/molecule-match" className="lab-button">
+                <div className="lab-icon">🧪</div>
+                <span>Molecule Match</span>
+              </Link>
+            </div>
+          </div>
           {/* Integrated content area - Modified to allow full screen science lab */}
           <div className="flex-1 relative w-full h-full flex flex-col">
             {/* Emotion tracker toggle button */}
