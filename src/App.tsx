@@ -12,6 +12,7 @@ import CreateAccount from "./pages/CreateAccount";
 import SelectInterests from "./pages/SelectInterests";
 import LoadingExperience from "./pages/LoadingExperience";
 import ScientistPortal from "./pages/ScientistPortal";
+import ParentDashboard from "./pages/ParentDashboard";
 import SignIn from "./pages/SignIn";
 import { AuthProvider } from "./contexts/AuthContext";
 import PlanetMatch from "./components/games/PlanetMatch";
@@ -54,6 +55,9 @@ const App = () => {
               <Route path="/loading-experience" element={<LoadingExperience />} />
               <Route path="/scientist-portal" element={<ScientistPortal />} />
               <Route path="/dashboard" element={<LandingPage />} /> {/* Temporary redirect */}
+              
+              {/* Parent Portal Route */}
+              <Route path="/parent-dashboard" element={<ParentDashboard />} />
               
               {/* Original Application Routes */}
               <Route path="/original-app" element={<Index />} />
